@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { InventoryPage } from '../pages/InventoryPage';
-import { CartPage } from '../pages/CartPage';
-import { CheckoutPage } from '../pages/CheckoutPage';
-import { CheckoutOverviewPage } from '../pages/CheckoutOverviewPage';
-import { CheckoutCompletePage } from '../pages/CheckoutCompletePage';
+import { LoginPage } from '../page_model/LoginPage';
+import { InventoryPage } from '../page_model/InventoryPage';
+import { CartPage } from '../page_model/CartPage';
+import { CheckoutPage } from '../page_model/CheckoutPage';
+import { CheckoutOverviewPage } from '../page_model/CheckoutOverviewPage';
+import { CheckoutCompletePage } from '../page_model/CheckoutCompletePage';
+import { STANDARD_USER, STANDARD_PASSWORD, PRODUCT1, PRODUCT2, USERLASTNAME, USERNAME, PINCODE } from '../constants/constants'; 
 
-test('End-to-End Purchase Scenario @purchase', async ({ page }) => {
+test('Complete Purchase Scenario @purchaseitem', async ({ page }) => {
   const loginPage = new LoginPage(page);
   const inventoryPage = new InventoryPage(page);
   const cartPage = new CartPage(page);
@@ -16,15 +17,12 @@ test('End-to-End Purchase Scenario @purchase', async ({ page }) => {
 
   //login to website 
   await loginPage.navigate();
-  await loginPage.login('standard_user', 'secret_sauce');
+  await loginPage.login(STANDARD_USER, STANDARD_PASSWORD);
   await expect(page).toHaveURL(/inventory\.html/); //validate if the user landed on inventory page
   
   //add 2 products in cart
-  const product1 = 'Sauce Labs Backpack';
-  const product2 = 'Sauce Labs Bike Light';
-
-  await inventoryPage.addProductToCart(product1); 
-  await inventoryPage.addProductToCart(product2); 
+  await inventoryPage.addProductToCart(PRODUCT1); 
+  await inventoryPage.addProductToCart(PRODUCT2); 
 
 //   await inventoryPage.addProductToCart('sauce-labs-backpack'); 
 //   await inventoryPage.addProductToCart('sauce-labs-bike-light'); 
@@ -38,7 +36,7 @@ test('End-to-End Purchase Scenario @purchase', async ({ page }) => {
   await expect(page).toHaveURL(/checkout-step-one\.html/);
 
   //fill user information
-  await checkoutPage.fillCheckoutInformation('Pallavi', 'Kale', '2557'); 
+  await checkoutPage.fillCheckoutInformation(USERNAME, USERLASTNAME, PINCODE); 
 
   //
   await checkoutPage.continueToOverview();
@@ -52,43 +50,41 @@ test('End-to-End Purchase Scenario @purchase', async ({ page }) => {
 
   //rder completion
   const successMessage = await checkoutCompletePage.getSuccessMessage();
-  expect(successMessage).toContain('Thank you for your order!');
+  expect(successMessage).toContain('Thank you for your order!'); //verify success message
 
 });
 
-test('Remove item from cart and verify on cart page', async ({ page }) => {
+test('Remove item from cart and verify on cart page @removeitemfromcart', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const inventoryPage = new InventoryPage(page);
     const cartPage = new CartPage(page);
   
-    // 1. Login
+    //login to website 
     await loginPage.navigate();
-    await loginPage.login('standard_user', 'secret_sauce');
+    await loginPage.login(STANDARD_USER, STANDARD_PASSWORD);
     await expect(page).toHaveURL(/inventory\.html/);
   
-    // 2. Add two products to cart
-    const product1 = 'Sauce Labs Backpack';
-    const product2 = 'Sauce Labs Bike Light';
-    await inventoryPage.addProductToCart(product1);
-    await inventoryPage.addProductToCart(product2);
+    //add 2 products in cart
+    await inventoryPage.addProductToCart(PRODUCT1);
+    await inventoryPage.addProductToCart(PRODUCT2);
   
-    // 3. Go to cart page
+    //navigate to cart page
     await inventoryPage.navigateToCart();
     await expect(page).toHaveURL(/cart\.html/);
-    await cartPage.verifyCartItems([product1, product2]); // Verify both items are in cart
+    await cartPage.verifyCartItems([PRODUCT1, PRODUCT2]); // Verify both items are in cart
   
-    // 4. Go back to inventory page
+    //navigate back to inventory page
     await page.goBack(); 
     await expect(page).toHaveURL(/inventory\.html/);
   
-    // 5. Remove one product from inventory page
-    await inventoryPage.removeProductFromCart(product1); 
+    //remove 1 product from cart
+    await inventoryPage.removeProductFromCart(PRODUCT1); 
   
-    // 6. Go to cart page again
+    //navigate to cart page
     await inventoryPage.navigateToCart();
     await expect(page).toHaveURL(/cart\.html/);
   
-    // 7. Verify that the removed product is not in the cart
-    await cartPage.verifyCartItems([product2]); 
+    //check removed product is not in the cart
+    await cartPage.verifyCartItems([PRODUCT2]); 
   
   });

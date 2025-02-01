@@ -2,12 +2,12 @@ import { Page, Locator, expect } from '@playwright/test';
 
 export class CheckoutPage {
 
-    private page: Page;
-    private firstName :Locator;
-    private lastName : Locator;
-    private pinCode : Locator;
-    private continueBtn : Locator;
-    private errorMessage : Locator;
+  private page: Page;
+  private firstName :Locator;
+  private lastName : Locator;
+  private pinCode : Locator;
+  private continueBtn : Locator;
+  private errorMessage : Locator;
 
 
   constructor(page: Page) {
